@@ -1,20 +1,11 @@
 
-
-#Assignment2: wordcount-improved
-
-#author:  Mohammad Javad Eslamibidgoli (Student #: 301195360)
-
 import re, string
+
 from pyspark import SparkConf, SparkContext
 import sys
+assert sys.version_info >= (3, 5) # make sure we have Python 3.5+
 
-inputs = sys.argv[1]
-output = sys.argv[2]
-
-conf = SparkConf().setAppName('word count')
-sc = SparkContext(conf=conf)
-assert sys.version_info >= (3, 5)  # make sure we have Python 3.5+
-assert sc.version >= '2.3'  # make sure we have Spark 2.3+
+# add more functions as necessary
 
 wordsep = re.compile(r'[%s\s]+' % re.escape(string.punctuation))
 
@@ -35,12 +26,26 @@ def output_format(kv):
     k, v = kv
     return '%s %i' % (k, v)
 
+def main(inputs, output):
+    # main logic starts here
+
+	text = sc.textFile(inputs)
+	text = text.repartition(32)
+	words = text.flatMap(words_once_modified)
+	
+	wordcount = words.reduceByKey(add)
+
+	outdata = wordcount.sortBy(get_key).map(output_format)
+	outdata.saveAsTextFile(output)
 
 
-text = sc.textFile(inputs)
-words = text.flatMap(words_once_modified)
+if __name__ == '__main__':
+    conf = SparkConf().setAppName('wordcount improved')
+    sc = SparkContext(conf=conf)
+    sc.setLogLevel('WARN')
+    assert sc.version >= '2.4'  # make sure we have Spark 2.4+
+    inputs = sys.argv[1]
+    output = sys.argv[2]
+    main(inputs, output)
 
-wordcount = words.reduceByKey(add)
 
-outdata = wordcount.sortBy(get_key).map(output_format)
-outdata.saveAsTextFile(output)
