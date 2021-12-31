@@ -8,7 +8,7 @@
 * in which StringTokenizer could not correctly capture the individual words.Moreover, I used
 * .toLowerCase() and .trim() to ignore case and ignore any length 0 words, respectively.   
 *
-* @author  Mohammad Javad Eslamibidgoli (Student #: 301195360)
+* @author  Mohammad Javad Eslamibidgoli 
 * @since   2019-09-13 
 */
 
